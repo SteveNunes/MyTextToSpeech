@@ -14,6 +14,7 @@ public abstract class TextToSpeechEllevenLabs {
 	private static EllevenLabsModels model = EllevenLabsModels.ELEVEN_MULTILANGUAL_V2;
 	private static String customVoice = null;
 	private static String apiKey = "-";
+	private static String testApiKey = "{[(TEST API KEY)]}";
 	
 	public static void speech(String text) {
 		if (text == null || text.isBlank() || text.isEmpty())
@@ -24,7 +25,7 @@ public abstract class TextToSpeechEllevenLabs {
 			String pyScriptPath = pyScriptFile.getAbsolutePath();
 			pyExeFile = new File("./TTS ElevenLabs/venv/Scripts/python.exe");
 			String pyExePath = pyExeFile.getAbsolutePath();
-			ProcessBuilder processBuilder = new ProcessBuilder(pyExePath, pyScriptPath, apiKey == null ? "-" : apiKey, customVoice != null ? customVoice : voice.getValue(), model.getValue(), text);
+			ProcessBuilder processBuilder = new ProcessBuilder(pyExePath, pyScriptPath, apiKey == null ? "-" : apiKey, customVoice != null ? customVoice : voice.getValue(), model.getValue(), text.equals(testApiKey) ? " " : text);
       processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
       InputStream inputStream = process.getInputStream();
@@ -39,16 +40,24 @@ public abstract class TextToSpeechEllevenLabs {
       }
       process.waitFor();
     }
-		catch (Exception e) { e.printStackTrace(); }
+		catch (Exception e) {
+			if (text.equals(testApiKey))
+				throw new RuntimeException(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	public static boolean isValidApiKey(String apiKey) {
+		String key = apiKey;
+		setApiKey(apiKey);
 		try
-			{ speech(""); }
+			{ speech(testApiKey); }
 		catch (Exception e) {
+			setApiKey(key);
 			if (e.getMessage().contains("Invalid API key"))
 				return false;
 		}
+		setApiKey(key);
 		return true;
 	}
 	
