@@ -1,39 +1,93 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
+
+import exceptions.GoogleLanguageException;
 
 public abstract class TextToSpeechGoogle {
-
 	
-	private static String outputTempFile = "";
-
-	public static void speech(String text, float gain, float speechSpeed, int passes) {
-		if (text == null || text.isBlank() || text.isEmpty())
-			return;
-		File pyScriptFile = null;
-		File pyExeFile = null;
-		try {
-			pyScriptFile = new File("./gTTS/main.py");
-			String pyScriptPath = pyScriptFile.getAbsolutePath();
-			pyExeFile = new File("./gTTS/venv/Scripts/python.exe");
-			String pyExePath = pyExeFile.getAbsolutePath();
-			ProcessBuilder processBuilder = new ProcessBuilder(pyExePath, pyScriptPath, outputTempFile, "" + gain, "" + speechSpeed, "" + passes, text);
-			processBuilder.redirectErrorStream(false);
-			processBuilder.start().waitFor();
+	private static File pyScriptFile = null;
+	private static File pyExeFile = null;
+	private static String pyScriptPath = null;
+	private static String pyExePath = null;
+	private static String language = "en";
+	private static int gain = 0;
+	private static float speechSpeed = 1f;
+	private static boolean slow = false;
+	
+	private static List<String> callScript(ProcessBuilder processBuilder) throws Exception {
+		List<String> outputStream = new LinkedList<>();
+    processBuilder.redirectErrorStream(true);
+    Process process = processBuilder.start();
+    InputStream inputStream = process.getInputStream();
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+    String line = "";
+    while ((line = reader.readLine()) != null) {
+    	outputStream.add(line);
+    	if (line.contains("ValueError: Language not supported:"))
+ 				throw new GoogleLanguageException(line);
     }
-		catch (Exception e) {
-			if (pyScriptFile == null || pyExeFile == null || !pyScriptFile.exists() || !pyExeFile.exists())
-				System.err.println("Verifique se a pasta 'gTTS' foi copiada para a pasta raiz do seu projeto (Você pode encontrar essa pasta dentro do arquivo 'MyPersonalLib.jar'");
-			else
-				e.printStackTrace();
-		}
+    process.waitFor();
+    return outputStream.isEmpty() ? null : outputStream;
 	}
 
-	public static void speech(String text)
-		{ speech(text, 0, 1, 1); }
+	public static void speech(String text) throws Exception {
+		if (text == null || text.isBlank() || text.isEmpty())
+			return;
+		checkFolder();
+		callScript(new ProcessBuilder(pyExePath, pyScriptPath, "-", language, "" + gain, "" + speechSpeed, slow ? "True" : "False", text));
+	}
+
+	public static void generateAndSave(String text, String outputFilePath) throws Exception {
+		if (text == null || text.isBlank() || text.isEmpty())
+			return;
+		checkFolder();
+		callScript(new ProcessBuilder(pyExePath, pyScriptPath, outputFilePath, language, "" + gain, "" + speechSpeed, slow ? "True" : "False", text));
+	}
+
+	public static int getGain()
+		{ return gain; }
+
+	public static void setGain(int value)
+		{ gain = value; }
+
+	public static float getSpeechSpeed()
+		{ return speechSpeed; }
+
+	public static void setSpeechSpeed(float value)
+		{ speechSpeed = value; }
 	
-	/** Local onde o script python irá gerar o arquivo de áudio para então reproduzí-lo */
-	public static void setOutputTempFile(String filePath)
-		{ outputTempFile = filePath; }
+	public static String getLanguage()	
+		{ return language; }
+
+	public static void testLanguage(String language) throws Exception {
+		checkFolder();
+		callScript(new ProcessBuilder(pyExePath, pyScriptPath, "-", language, "0", "1", "False", "."));
+		TextToSpeechGoogle.language = language;
+	}
 	
+	public static void setLanguage(String language)
+		{ TextToSpeechGoogle.language = language; }
+	
+	private static void checkFolder() throws Exception {
+		if (pyExeFile == null)
+			try {
+				pyScriptFile = new File("gTTS/main.py");
+				pyScriptPath = pyScriptFile.getAbsolutePath();
+				pyExeFile = new File("gTTS/venv/Scripts/python.exe");
+				pyExePath = pyExeFile.getAbsolutePath();
+			}
+			catch (Exception e) {
+				if (pyScriptFile == null || pyExeFile == null || !pyScriptFile.exists() || !pyExeFile.exists())
+					throw new RuntimeException("Ensure the 'gTTS' folder is present on your project root folder (You can get this folder from inside of the 'MyTextToSpeech.jar' file");
+				else
+					e.printStackTrace();
+			}
+	}
+
 }
