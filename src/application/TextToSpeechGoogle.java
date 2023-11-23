@@ -50,10 +50,10 @@ public abstract class TextToSpeechGoogle {
 		callScript(new ProcessBuilder(pyExePath, pyScriptPath, outputFilePath, language, "" + gain, "" + speechSpeed, slow ? "True" : "False", text));
 	}
 
-	public static int getGain()
+	public static int getVolumeGain()
 		{ return gain; }
 
-	public static void setGain(int value)
+	public static void setVolumeGain(int value)
 		{ gain = value; }
 
 	public static float getSpeechSpeed()

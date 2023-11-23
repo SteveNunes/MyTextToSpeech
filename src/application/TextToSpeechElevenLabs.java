@@ -128,10 +128,10 @@ public abstract class TextToSpeechElevenLabs {
 	public static void setVoice(String voiceName)
 		{ TextToSpeechElevenLabs.voiceName = voiceName; }
 
-	public static ElevenLabsModels getModel()
+	public static ElevenLabsModels getVoiceModel()
 		{ return voiceModel; }
 
-	public static void setModel(ElevenLabsModels model)
+	public static void setVoiceModel(ElevenLabsModels model)
 		{ TextToSpeechElevenLabs.voiceModel = model; }
 
 	public static float getStability()
@@ -152,25 +152,25 @@ public abstract class TextToSpeechElevenLabs {
 		similarity = value;
 	}
 
-	public static float getStyle()
+	public static float getStyleExageration()
 		{ return style; }
 
-	public static void setStyle(float value) {
+	public static void setStyleExageration(float value) {
 		if (value < 0.0f || value > 1.0f)
 			throw new RuntimeException("'value' must be 0.0 to 1.0");
 		style = value;
 	}
 	
-	public static float getGain()
+	public static float getVolumeGain()
 		{ return gain; }
 
-	public static void setGain(float value)
+	public static void setVolumeGain(float value)
 		{ gain = value; }
 
-	public static float getSpeed()
+	public static float getSpeechSpeed()
 		{ return speed; }
 	
-	public static void setSpeed(float value)
+	public static void setSpeechSpeed(float value)
 		{ speed = value; }
 
 	public static boolean getSpeakerBoost()
