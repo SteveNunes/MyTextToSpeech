@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,13 +32,14 @@ public abstract class TextToSpeechElevenLabs {
 	private static float similarity = 1f;
 	private static float style = 0f;
 	private static boolean speakerBoost = false;
-		
+	
 	private static List<String> callScript(ProcessBuilder processBuilder) throws Exception {
 		List<String> outputStream = new LinkedList<>();
     processBuilder.redirectErrorStream(true);
+    processBuilder.environment().put("PYTHONIOENCODING", "UTF-8");
     Process process = processBuilder.start();
     InputStream inputStream = process.getInputStream();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
     String line = "";
     while ((line = reader.readLine()) != null) {
     	outputStream.add(line);
@@ -97,8 +99,9 @@ public abstract class TextToSpeechElevenLabs {
 					list = new LinkedList<>(callScript(new ProcessBuilder(pyExePath, pyScriptPath, "help", "voices", apiKey)));
 				else
 					list = new LinkedList<>(callScript(new ProcessBuilder(pyExePath, pyScriptPath, "help", "voices")));
-				String[] result = list.get(0).substring(list.get(0).indexOf(':') + 2).split(", ");
-				voiceList = new LinkedList<>(Arrays.asList(result));
+				for (String s : list)
+					if (s.contains("Available voices:"))
+						voiceList = new LinkedList<>(Arrays.asList(s.substring(s.indexOf(':') + 2).split(", ")));
 			}
 			catch (Exception e)
 				{ throw new RuntimeException("Unable to fetch the list of available names\n" + e.getStackTrace()); }
