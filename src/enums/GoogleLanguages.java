@@ -1,6 +1,9 @@
 package enums;
 
+import java.text.Collator;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public enum GoogleLanguages {
@@ -138,6 +141,7 @@ public enum GoogleLanguages {
 	zu("Zulu");
 	
 	private String value;
+	private static List<GoogleLanguages> languageList = null;
 
 	GoogleLanguages(String value)
 		{ this.value = value; }
@@ -146,14 +150,21 @@ public enum GoogleLanguages {
 		{ return value; }
 	
 	public static List<GoogleLanguages> getListOfAll() {
-		return Arrays.asList(af, sq, de, am, ar, hy, as, ay, az, eu, be, bn, bho, bs,
-				bg, ca, ceb, zh_CN, zh_TW, co, hr, cs, da, dv, doi, nl, en, eo, et, ee,
-				fil, fi, fr, fy, gl, ka, de, el, gn, gu, ht, ha, haw, he, hi, hmn, hu,
-				is, ig, ilo, id, ga, it, ja, jv, kn, kk, km, rw, gom, ko, kri, ku, ckb,
+		if (languageList == null) {
+			languageList = Arrays.asList(af, sq, de, am, ar, hy, as, ay, az, eu, be, bn,
+				bho, bs, bg, ca, ceb, zh_CN, zh_TW, co, hr, cs, da, dv, doi, nl, en, eo,
+				et, ee, fil, fi, fr, fy, gl, ka, de, el, gn, gu, ht, ha, haw, he, hi, hmn,
+				hu, is, ig, ilo, id, ga, it, ja, jv, kn, kk, km, rw, gom, ko, kri, ku, ckb,
 				ky, lo, la, lv, ln, lt, lg, lb, mk, mai, ms, ml, mt, mi, mr, mni_Mtei,
 				lus, mn, my, ne, no, ny, or, om, ps, fa, pl, pt, pa, qu, ro, ru, sm, sa,
 				gd, nso, sr, st, sn, sd, si, sk, sl, so, es, sw, sv, tl, tg, ta, tt, te,
 				th, ti, ts, tr, tk, ak, uk, ur, ug, uz, vi, cy, xh, yi, yo, zu);
+      Collator collator = Collator.getInstance();
+      collator.setStrength(Collator.PRIMARY);
+      Comparator<GoogleLanguages> comparador = Comparator.comparing(GoogleLanguages::getValue, collator::compare);
+      Collections.sort(languageList, comparador);
+		}
+		return languageList;
 	}
 	
 }
