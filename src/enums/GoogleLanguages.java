@@ -95,7 +95,7 @@ public enum GoogleLanguages {
 	ps("Pashto"),
 	fa("Persa"),
 	pl("Polonês"),
-	pt("Português (Português (Brasil))"),
+	pt("Português"),
 	pa("Punjabi"),
 	qu("Quechua"),
 	ro("Romeno"),
