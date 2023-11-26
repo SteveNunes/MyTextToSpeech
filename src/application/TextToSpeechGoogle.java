@@ -68,15 +68,8 @@ public abstract class TextToSpeechGoogle {
 	public static GoogleLanguages getLanguage()	
 		{ return language; }
 	
-	public static void setLanguage(String language) throws Exception {
-		GoogleLanguages lang;
-		try {
-			lang = GoogleLanguages.valueOf(language);
-			TextToSpeechGoogle.language = lang;
-		}
-		catch (Exception e)
-			{ throw new GoogleLanguageException(language + " - Invalid language"); }
-	}
+	public static void setLanguage(GoogleLanguages language)
+		{ TextToSpeechGoogle.language = language; }
 	
 	private static void checkFolder() throws Exception {
 		if (pyExeFile == null)
