@@ -17,7 +17,7 @@ public abstract class TextToSpeechGoogle {
 	private static File pyExeFile = null;
 	private static String pyScriptPath = null;
 	private static String pyExePath = null;
-	private static String language = "en";
+	private static GoogleLanguages language = GoogleLanguages.en;
 	private static float gain = 1f;
 	private static float speed = 1f;
 	private static boolean slow = false;
@@ -43,14 +43,14 @@ public abstract class TextToSpeechGoogle {
 		if (text == null || text.isBlank() || text.isEmpty())
 			return;
 		checkFolder();
-		callScript(new ProcessBuilder(pyExePath, pyScriptPath, "-", language, "" + gain, "" + speed, slow ? "True" : "False", text));
+		callScript(new ProcessBuilder(pyExePath, pyScriptPath, "-", language.name(), "" + gain, "" + speed, slow ? "True" : "False", text));
 	}
 
 	public static void generateAndSave(String text, String outputFilePath) throws Exception {
 		if (text == null || text.isBlank() || text.isEmpty())
 			return;
 		checkFolder();
-		callScript(new ProcessBuilder(pyExePath, pyScriptPath, outputFilePath, language, "" + gain, "" + speed, slow ? "True" : "False", text));
+		callScript(new ProcessBuilder(pyExePath, pyScriptPath, outputFilePath, language.name(), "" + gain, "" + speed, slow ? "True" : "False", text));
 	}
 
 	public static float getVolumeGain()
@@ -65,20 +65,14 @@ public abstract class TextToSpeechGoogle {
 	public static void setSpeechSpeed(float value)
 		{ speed = value; }
 	
-	public static String getLanguage()	
+	public static GoogleLanguages getLanguage()	
 		{ return language; }
-	
-	public static void testLanguage(String language) throws Exception {
-		checkFolder();
-		callScript(new ProcessBuilder(pyExePath, pyScriptPath, "-", language, "0", "1", "False", "."));
-		TextToSpeechGoogle.language = language;
-	}
 	
 	public static void setLanguage(String language) throws Exception {
 		GoogleLanguages lang;
 		try {
 			lang = GoogleLanguages.valueOf(language);
-			TextToSpeechGoogle.language = lang.name();
+			TextToSpeechGoogle.language = lang;
 		}
 		catch (Exception e)
 			{ throw new GoogleLanguageException(language + " - Invalid language"); }
